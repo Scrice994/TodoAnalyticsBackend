@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
-import { User } from '../../../src/entities/mongo/userSchema'
 
 let mongo: MongoMemoryServer | null = null;
 
@@ -21,5 +20,5 @@ export const dropFakeDB = async () => {
 }
 
 export const dropFakeCollections = async () => {
-    User.collection.drop()
+    await mongoose.connection.dropDatabase()
 }

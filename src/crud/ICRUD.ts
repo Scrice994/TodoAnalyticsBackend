@@ -1,3 +1,4 @@
+import { IGroupEntity } from "../entities/GroupEntity";
 import { IEntity } from "../entities/IEntity";
 import { IUserEntity } from "../entities/UserEntity";
 
@@ -24,7 +25,7 @@ export interface ICRUD<T extends IEntity>{
     //read(obj: { [key: string]: unknown }): Promise<ICRUDResponse<T[]>>;
     readOne(obj: { [key: string]: unknown }): Promise<ICRUDResponse<T>>
     create(newElement: Omit<T, 'id'>): Promise<ICRUDResponse<T>>;
-    update(filter: IUserEntity, updateElement: Partial<T>): Promise<ICRUDResponse<T>>;
+    update(filter: IUserEntity | IGroupEntity, updateElement: Partial<T>): Promise<ICRUDResponse<T>>;
     // delete(id: DataStorageId): Promise<ICRUDResponse<T>>;
     // deleteAll(obj: {[key: string]: unknown}): Promise<ICRUDResponse<number>>
 }

@@ -1,5 +1,4 @@
 import { IDataStorage } from "../dataStorage/IDataStorage";
-import { IEntity } from "../entities/IEntity";
 import { IUserEntity, UserEntity } from "../entities/UserEntity";
 import { IRepository } from "./IRepository";
 
@@ -18,8 +17,8 @@ export class userRepository implements IRepository<UserEntity>{
         return result
     }
 
-    async updateOne(filter: IUserEntity, updateEntity: Partial<UserEntity>): Promise<UserEntity> {
-        const result = await this._dataStorage.update(filter, updateEntity)
+    async updateOne(filter: IUserEntity, updateUnit: Partial<UserEntity>): Promise<UserEntity> {
+        const result = await this._dataStorage.update(filter, updateUnit)
 
         return result
     }

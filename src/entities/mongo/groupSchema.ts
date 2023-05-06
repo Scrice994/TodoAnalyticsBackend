@@ -10,4 +10,4 @@ const groupSchema = new Schema({
 
 type Group = InferSchemaType<typeof groupSchema>
 
-export const User = model<Group>('Group', groupSchema)
+export const Group = model<Group>('Group', groupSchema)
