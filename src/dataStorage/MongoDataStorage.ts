@@ -10,6 +10,10 @@ export class MongoDataStorage<T extends IEntity> implements IDataStorage<T>{
     async findOneByKey(obj: { [key: string]: unknown; }): Promise<T> {
         const findElement = await this._model.findOne(obj);
 
+        if(findElement === null){
+            return findElement
+        }
+
         const { __v, _id, ...result } = findElement.toObject();
 
         return result

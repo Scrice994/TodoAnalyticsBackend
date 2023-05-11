@@ -70,6 +70,12 @@ describe("mongoDataStorage", () => {
 
             expect(result).toEqual(createGroupReadModel)
         })
+
+        it("should return null when it don't find anything that match the filter", async () => {
+            const result = await GROUP_DATA_STORAGE.findOneByKey({ tenantId: 'testTenantId' })
+
+            expect(result).toBe(null)
+        })
     })
 
     describe("update()", () => {

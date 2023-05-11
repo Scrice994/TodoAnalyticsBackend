@@ -2,7 +2,7 @@ import { IDataStorage } from "../dataStorage/IDataStorage";
 import { IUserEntity, UserEntity } from "../entities/UserEntity";
 import { IRepository } from "./IRepository";
 
-export class userRepository implements IRepository<UserEntity>{
+export class UserRepository implements IRepository<UserEntity>{
     constructor(private _dataStorage: IDataStorage<UserEntity>){}
 
     async getOneByKey(obj: { [key: string]: unknown; }): Promise<UserEntity> {
