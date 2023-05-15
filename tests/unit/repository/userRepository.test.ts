@@ -1,10 +1,10 @@
-import { userRepository } from "../../../src/repositories/userRepository"
+import { UserRepository } from "../../../src/repositories/userRepository"
 import { MongoDataStorageMock } from "../../__mocks__/dataStorage.mock"
 
 describe("userRepository", () => {
 
     const DATA_STORAGE = new MongoDataStorageMock()
-    const REPOSITORY = new userRepository(DATA_STORAGE)
+    const REPOSITORY = new UserRepository(DATA_STORAGE)
 
     describe("insertOne()", () => {
         it("should call create() from the dataStorage and return it's value", async () => {

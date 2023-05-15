@@ -1,11 +1,11 @@
-import { IUserEntity, UserEntity } from "../entities/UserEntity";
+import { IUserReadModelEntity, UserReadModelEntity } from "../entities/UserReadModelEntity";
 import { IRepository } from "../repositories/IRepository";
 import { ICRUD, ICRUDResponse } from "./ICRUD";
 
-export class UserCRUD implements ICRUD<UserEntity>{
-    constructor(private _repository: IRepository<UserEntity>){}
+export class UserCRUD implements ICRUD<UserReadModelEntity>{
+    constructor(private _repository: IRepository<UserReadModelEntity>){}
 
-    async readOne(obj: { [key: string]: unknown; }): Promise<ICRUDResponse<UserEntity>> {
+    async readOne(obj: { [key: string]: unknown; }): Promise<ICRUDResponse<UserReadModelEntity>> {
         try {
             const result = await this._repository.getOneByKey(obj)
             return this.successfullResponse(result)
@@ -14,7 +14,7 @@ export class UserCRUD implements ICRUD<UserEntity>{
         }
     }
 
-    async create(newElement: Omit<UserEntity, "id">): Promise<ICRUDResponse<UserEntity>> {
+    async create(newElement: Omit<UserReadModelEntity, "id">): Promise<ICRUDResponse<UserReadModelEntity>> {
         try {
             const result = await this._repository.insertOne(newElement)
             return this.successfullResponse(result)
@@ -23,7 +23,7 @@ export class UserCRUD implements ICRUD<UserEntity>{
         }
     }
 
-    async update(filter: IUserEntity, updateElement: Partial<UserEntity>): Promise<ICRUDResponse<UserEntity>> {
+    async update(filter: IUserReadModelEntity, updateElement: Partial<UserReadModelEntity>): Promise<ICRUDResponse<UserReadModelEntity>> {
         try {
             const result = await this._repository.updateOne(filter, updateElement)
             return this.successfullResponse(result)            

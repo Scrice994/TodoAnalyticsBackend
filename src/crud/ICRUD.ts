@@ -1,6 +1,6 @@
-import { IGroupEntity } from "../entities/GroupEntity";
+import { IGroupReadModelEntity } from "../entities/GroupReadModelEntity";
 import { IEntity } from "../entities/IEntity";
-import { IUserEntity } from "../entities/UserEntity";
+import { IUserReadModelEntity } from "../entities/UserReadModelEntity";
 
 interface ICRUDBaseResponse {
     statusCode: number;
@@ -25,7 +25,7 @@ export interface ICRUD<T extends IEntity>{
     //read(obj: { [key: string]: unknown }): Promise<ICRUDResponse<T[]>>;
     readOne(obj: { [key: string]: unknown }): Promise<ICRUDResponse<T>>
     create(newElement: Omit<T, 'id'>): Promise<ICRUDResponse<T>>;
-    update(filter: IUserEntity | IGroupEntity, updateElement: Partial<T>): Promise<ICRUDResponse<T>>;
+    update(filter: IUserReadModelEntity | IGroupReadModelEntity, updateElement: Partial<T>): Promise<ICRUDResponse<T>>;
     // delete(id: DataStorageId): Promise<ICRUDResponse<T>>;
     // deleteAll(obj: {[key: string]: unknown}): Promise<ICRUDResponse<number>>
 }

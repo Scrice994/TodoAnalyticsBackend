@@ -1,9 +1,9 @@
-import { GroupEntity } from "../../entities/GroupEntity"
-import { UserEntity } from "../../entities/UserEntity"
+import { GroupReadModelEntity } from "../../entities/GroupReadModelEntity"
+import { UserReadModelEntity } from "../../entities/UserReadModelEntity"
 
 export interface EventHandlerResponse{
-    user: UserEntity | null,
-    group: GroupEntity | null
+    user: UserReadModelEntity | null,
+    group: GroupReadModelEntity | null
 }
 
 

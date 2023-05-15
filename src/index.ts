@@ -3,10 +3,10 @@ import express from 'express'
 import { GroupCRUD } from './crud/groupCRUD'
 import { UserCRUD } from './crud/userCRUD'
 import { MongoDataStorage } from './dataStorage/MongoDataStorage'
-import { GroupEntity } from './entities/GroupEntity'
-import { UserEntity } from './entities/UserEntity'
-import { Group } from './entities/mongo/groupSchema'
-import { User } from './entities/mongo/userSchema'
+import { GroupReadModelEntity } from './entities/GroupReadModelEntity'
+import { UserReadModelEntity } from './entities/UserReadModelEntity'
+import { GroupReadModel } from './entities/mongo/groupReadModelSchema'
+import { UserReadModel } from './entities/mongo/userReadModelSchema'
 import { GroupRepository } from './repositories/groupRepository'
 import { UserRepository } from './repositories/userRepository'
 import { EventHandler } from './utils/EventHandler/EventHandler'
@@ -17,21 +17,24 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
-const USER_DATA_STORAGE = new MongoDataStorage<UserEntity>(User)
+const USER_DATA_STORAGE = new MongoDataStorage<UserReadModelEntity>(UserReadModel)
 const USER_REPOSITORY = new UserRepository(USER_DATA_STORAGE)
 const USER_CRUD = new UserCRUD(USER_REPOSITORY)
-const GROUP_DATA_STORAGE = new MongoDataStorage<GroupEntity>(Group)
+const GROUP_DATA_STORAGE = new MongoDataStorage<GroupReadModelEntity>(GroupReadModel)
 const GROUP_REPOSITORY = new GroupRepository(GROUP_DATA_STORAGE)
 const GROUP_CRUD = new GroupCRUD(GROUP_REPOSITORY)
 
+app.post('/user/signup', async (req, res) => {
+    res.status(200).json({message: 'not implemented yet'})
+})
 
 app.post('/event-listener', async (req, res) => {
     const newEvent = req.body
 
     const { userId, tenantId, ...data } = newEvent.event.data
 
-    let user: UserEntity | null = null;
-    let group: GroupEntity | null = null;
+    let user: UserReadModelEntity | null = null;
+    let group: GroupReadModelEntity | null = null;
 
     const findUser = await USER_CRUD.readOne({ userId })
     const findGroup = await GROUP_CRUD.readOne({ tenantId })

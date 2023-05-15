@@ -1,8 +1,8 @@
 import { MongoDataStorage } from "../../../src/dataStorage/MongoDataStorage"
-import { GroupEntity } from "../../../src/entities/GroupEntity"
-import { UserEntity } from "../../../src/entities/UserEntity"
-import { Group } from "../../../src/entities/mongo/groupSchema"
-import { User } from "../../../src/entities/mongo/userSchema"
+import { GroupReadModelEntity } from "../../../src/entities/GroupReadModelEntity"
+import { UserReadModelEntity } from "../../../src/entities/UserReadModelEntity"
+import { GroupReadModel } from "../../../src/entities/mongo/groupReadModelSchema"
+import { UserReadModel } from "../../../src/entities/mongo/userReadModelSchema"
 import { connectFakeDB, dropFakeCollections, dropFakeDB } from "./mongoDataStorageSetup"
 
 
@@ -18,8 +18,8 @@ describe("mongoDataStorage", () => {
         dropFakeCollections()
     })
 
-    const USER_DATA_STORAGE = new MongoDataStorage<UserEntity>(User)
-    const GROUP_DATA_STORAGE = new MongoDataStorage<GroupEntity>(Group)
+    const USER_DATA_STORAGE = new MongoDataStorage<UserReadModelEntity>(UserReadModel)
+    const GROUP_DATA_STORAGE = new MongoDataStorage<GroupReadModelEntity>(GroupReadModel)
     
     describe("create()", () => {
         it("should save a new user entity in the db", async () => {

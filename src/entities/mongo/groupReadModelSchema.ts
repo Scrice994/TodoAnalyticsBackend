@@ -1,13 +1,13 @@
 import { Schema, model, InferSchemaType } from "mongoose";
 import * as uuid from 'uuid'
 
-const userSchema = new Schema({
+const groupReadModelSchema = new Schema({
     id: { type: String, default: uuid.v4 },
-    userId: { type: String, required: true },
+    tenantId: { type: String, required: true },
     todos: { type: Number, default: 0 },
     completedTodos: { type: Number, default: 0}
 })
 
-type User = InferSchemaType<typeof userSchema>
+type Group = InferSchemaType<typeof groupReadModelSchema>
 
-export const User = model<User>('User', userSchema)
+export const GroupReadModel = model<Group>('GroupRead', groupReadModelSchema)
