@@ -2,7 +2,7 @@ import { GroupReadModelEntity, IGroupReadModelEntity } from "../entities/GroupRe
 import { IRepository } from "../repositories/IRepository";
 import { ICRUD, ICRUDResponse } from "./ICRUD";
 
-export class GroupCRUD implements ICRUD<GroupReadModelEntity>{
+export class GroupReadModelCRUD implements ICRUD<GroupReadModelEntity>{
     constructor(private _repository: IRepository<GroupReadModelEntity>){}
 
     async readOne(obj: { [key: string]: unknown; }): Promise<ICRUDResponse<GroupReadModelEntity>> {

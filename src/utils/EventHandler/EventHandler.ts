@@ -5,8 +5,8 @@ import { EventHandlerResponse, IEventHanlder } from "./IEventHandler";
 
 export class EventHandler implements IEventHanlder{
     constructor(
-        private _USER_CRUD: ICRUD<UserReadModelEntity>,
-        private _GROUP_CRUD: ICRUD<GroupReadModelEntity>,
+        private _USER_READ_CRUD: ICRUD<UserReadModelEntity>,
+        private _GROUP_READ_CRUD: ICRUD<GroupReadModelEntity>,
         private user: UserReadModelEntity | null,
         private group: GroupReadModelEntity | null
     ){}
@@ -17,14 +17,14 @@ export class EventHandler implements IEventHanlder{
         let updatedGroup: GroupReadModelEntity | null = null;
      
         if(userId){
-            const updateUserReadModelEntity = await this._USER_CRUD.update({ userId }, { todos: this.user!.todos! + 1 })
+            const updateUserReadModelEntity = await this._USER_READ_CRUD.update({ userId }, { todos: this.user!.todos! + 1 })
             if('response' in updateUserReadModelEntity.data){
                 updatedUser = updateUserReadModelEntity.data.response
             }
         }
     
         if(tenantId){
-            const updateGroupReadModelEntity = await this._GROUP_CRUD.update({ tenantId }, { todos: this.group!.todos! + 1 })
+            const updateGroupReadModelEntity = await this._GROUP_READ_CRUD.update({ tenantId }, { todos: this.group!.todos! + 1 })
             if('response' in updateGroupReadModelEntity.data){
                 updatedGroup = updateGroupReadModelEntity.data.response
             }
@@ -43,14 +43,14 @@ export class EventHandler implements IEventHanlder{
     
         if(data.completed === true){
             if(userId){
-                const updateUserReadModelEntity = await this._USER_CRUD.update({ userId }, { completedTodos: this.user!.completedTodos! + 1 })
+                const updateUserReadModelEntity = await this._USER_READ_CRUD.update({ userId }, { completedTodos: this.user!.completedTodos! + 1 })
                 if('response' in updateUserReadModelEntity.data){
                     updatedUser = updateUserReadModelEntity.data.response
                 }
             }
     
             if(tenantId){
-                const updateGroupReadModelEntity = await this._GROUP_CRUD.update({ tenantId }, { completedTodos: this.group!.completedTodos! + 1 })
+                const updateGroupReadModelEntity = await this._GROUP_READ_CRUD.update({ tenantId }, { completedTodos: this.group!.completedTodos! + 1 })
                 if('response' in updateGroupReadModelEntity.data){
                     updatedGroup = updateGroupReadModelEntity.data.response
                 }
@@ -59,14 +59,14 @@ export class EventHandler implements IEventHanlder{
     
         if(data.completed === false){
             if(userId){
-                const updateUserReadModelEntity = await this._USER_CRUD.update({ userId }, { completedTodos: this.user!.completedTodos! - 1 })
+                const updateUserReadModelEntity = await this._USER_READ_CRUD.update({ userId }, { completedTodos: this.user!.completedTodos! - 1 })
                 if('response' in updateUserReadModelEntity.data){
                     updatedUser = updateUserReadModelEntity.data.response
                 }
             }
     
             if(tenantId){
-                const updateGroupReadModelEntity = await this._GROUP_CRUD.update({ tenantId }, { completedTodos: this.group!.completedTodos! - 1 })
+                const updateGroupReadModelEntity = await this._GROUP_READ_CRUD.update({ tenantId }, { completedTodos: this.group!.completedTodos! - 1 })
                 if('response' in updateGroupReadModelEntity.data){
                     updatedGroup = updateGroupReadModelEntity.data.response
                 }
@@ -85,14 +85,14 @@ export class EventHandler implements IEventHanlder{
     
         if(data.completed === false){
             if(userId){
-                const updateUserReadModelEntity = await this._USER_CRUD.update({ userId }, { todos: this.user!.todos! - 1 })
+                const updateUserReadModelEntity = await this._USER_READ_CRUD.update({ userId }, { todos: this.user!.todos! - 1 })
                 if('response' in updateUserReadModelEntity.data){
                     updatedUser = updateUserReadModelEntity.data.response
                 }
             }
     
             if(tenantId){
-                const updateGroupReadModelEntity = await this._GROUP_CRUD.update({ tenantId }, { todos: this.group!.todos! - 1 })
+                const updateGroupReadModelEntity = await this._GROUP_READ_CRUD.update({ tenantId }, { todos: this.group!.todos! - 1 })
                 if('response' in updateGroupReadModelEntity.data){
                     updatedGroup = updateGroupReadModelEntity.data.response
                 }
@@ -101,7 +101,7 @@ export class EventHandler implements IEventHanlder{
         } else {
             
             if(userId){
-                const updateUserReadModelEntity = await this._USER_CRUD.update(
+                const updateUserReadModelEntity = await this._USER_READ_CRUD.update(
                     { userId }, { todos: this.user!.todos! - 1, completedTodos: this.user!.completedTodos! - 1 }
                 )
                 if('response' in updateUserReadModelEntity.data){
@@ -110,7 +110,7 @@ export class EventHandler implements IEventHanlder{
             }
     
             if(tenantId){
-                const updateGroupReadModelEntity = await this._GROUP_CRUD.update(
+                const updateGroupReadModelEntity = await this._GROUP_READ_CRUD.update(
                     { tenantId }, { todos: this.group!.todos! - 1, completedTodos: this.group!.completedTodos! - 1  }
                 )
                 if('response' in updateGroupReadModelEntity.data){
@@ -130,7 +130,7 @@ export class EventHandler implements IEventHanlder{
         let updatedGroup: GroupReadModelEntity | null = null;
     
         if(userId){
-            const updateUserReadModelEntity = await this._USER_CRUD.update({ userId }, { todos: 0, completedTodos: 0 })
+            const updateUserReadModelEntity = await this._USER_READ_CRUD.update({ userId }, { todos: 0, completedTodos: 0 })
     
             if('response' in updateUserReadModelEntity.data){
                 updatedUser = updateUserReadModelEntity.data.response
@@ -141,7 +141,7 @@ export class EventHandler implements IEventHanlder{
             const deletedTodos = await data.deletedTodos
             const deletedCompletedTodos = await deletedTodos.filter((todo: any) => todo.completed === true)
     
-            const updateGroupReadModelEntity = await this._GROUP_CRUD.update({ tenantId }, { todos: this.group!.todos! - deletedTodos.length , completedTodos: this.group!.completedTodos! - deletedCompletedTodos.length })
+            const updateGroupReadModelEntity = await this._GROUP_READ_CRUD.update({ tenantId }, { todos: this.group!.todos! - deletedTodos.length , completedTodos: this.group!.completedTodos! - deletedCompletedTodos.length })
     
             if('response' in updateGroupReadModelEntity.data){
                 updatedGroup = updateGroupReadModelEntity.data.response

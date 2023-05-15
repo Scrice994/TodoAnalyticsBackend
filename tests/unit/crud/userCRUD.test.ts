@@ -1,99 +1,52 @@
 import { UserCRUD } from "../../../src/crud/userCRUD"
 import { RepositoryMock } from "../../__mocks__/repository.mock"
 
-describe("readModelCRUD()", () => {
+describe('userCRUD', () => {
     const REPOSITORY = new RepositoryMock()
-    const CRUD = new UserCRUD(REPOSITORY)
+    const USER_CRUD = new UserCRUD(REPOSITORY)
+    const userData = {
+        username: 'testUsername',
+        password: 'testPassword1',
+        salt: 'testSalt',
+        userRole: 'Admin',
+        tenantId: 'testTenantId',
+        id: 'testId'
+    }
 
-    describe("create()", () => {
-        it("should call insertOne() from a repository and return obj with statusCode 200 if no error occour", async () => {
-            REPOSITORY.insertOne.mockImplementationOnce(() => Promise.resolve({
-                id: 'testId',
-                userId: 'testUserId',
-                todos: 2,
-                completedTodos: 1
-            }))
-
-
-            const result = await CRUD.create({
-                userId: 'testUserId',
-                todos: 2,
-                completedTodos: 1
-            })
+    describe('create()', () => {
+        it("should call insertOne() from the repository and return obj with statusCode 200 and a response", async () => {
+            REPOSITORY.insertOne.mockImplementationOnce(() => Promise.resolve(userData))
+            const {id, ...userDataParam } = userData
+            const result = await USER_CRUD.create(userDataParam)
 
             expect(result.statusCode).toBe(200)
-            expect(result.data).toEqual({ response: {
-                id: 'testId',
-                userId: 'testUserId',
-                todos: 2,
-                completedTodos: 1
-            }})
+            expect(result.data).toEqual({ response: userData })
         })
 
-        it("should response statusCode 500 with errorMessage when an error occour", async () => {
+        it("should return obj with statusCode 500 and a message if an error occour", async () => {
             REPOSITORY.insertOne.mockImplementationOnce(() => {throw new Error('TestError')})
-
-            const result = await CRUD.create({ userId: 'testUserId', todos: 2, completedTodos: 1 })
-
-            expect(result.statusCode).toBe(500)
-            expect(result.data).toEqual({ message: 'TestError' })
-        })
-    })
-
-    describe("readOne()", () => {
-        it("should call getOneByKey() from the repository and return obj with statusCode 200 if no error occour", async () => {
-            REPOSITORY.getOneByKey.mockImplementationOnce(() => Promise.resolve({
-                id: 'testId',
-                userId: 'testUserId',
-                todos: 2,
-                completedTodos: 1      
-            }))
-
-            const result = await CRUD.readOne({ userId: 'testUserId' })
-
-            expect(result.statusCode).toBe(200)
-            expect(result.data).toEqual({ response: {
-                id: 'testId',
-                userId: 'testUserId',
-                todos: 2,
-                completedTodos: 1      
-            }})
-        })
-
-        it("should return obj with statusCode 500 if an error occour", async () => {
-            REPOSITORY.getOneByKey.mockImplementationOnce(() => { throw new Error('TestError')})
-
-            const result = await CRUD.readOne({ userId: 'testUserId' })
+            const {id, ...userDataParam } = userData
+            const result = await USER_CRUD.create(userDataParam)
 
             expect(result.statusCode).toBe(500)
             expect(result.data).toEqual({ message: 'TestError' })
         })
     })
 
-    describe("update()", () => {
-        it("should call updateOne() in the repository and return 200 statusCode with response if no error occour", async () => {
-            REPOSITORY.updateOne.mockImplementationOnce(() => Promise.resolve({
-                id: 'testId',
-                userId: 'testUserId',
-                todos: 2,
-                completedTodos: 1     
-            }))
-    
-            const result = await CRUD.update({ userId: 'testUserId'}, { todos: 2 })
+    describe('readOne()', () => {
+        it("should call getOneByKey() from the repository and return obj with statusCode 200 and a response", async () => {
+            REPOSITORY.getOneByKey.mockImplementationOnce(() => Promise.resolve(userData))
+            const {id, ...userDataParam } = userData
+            const result = await USER_CRUD.readOne({id})
 
             expect(result.statusCode).toBe(200)
-            expect(result.data).toEqual({ response: {
-                id: 'testId',
-                userId: 'testUserId',
-                todos: 2,
-                completedTodos: 1  
-            }})
+            expect(result.data).toEqual({ response: userData })
         })
 
-        it("should return 500 statusCode and errorMessage when an error occour", async () => {
-            REPOSITORY.updateOne.mockImplementationOnce(() => {throw new Error('TestError')})
-
-            const result = await CRUD.update({userId: 'testUserId'}, { todos: 3})
+        it("should return obj with statusCode 500 and a message if an error occour", async () => {
+            REPOSITORY.getOneByKey.mockImplementationOnce(() => {throw new Error('TestError')})
+            const {id, ...userDataParam } = userData
+            const result = await USER_CRUD.readOne({id})
 
             expect(result.statusCode).toBe(500)
             expect(result.data).toEqual({ message: 'TestError' })

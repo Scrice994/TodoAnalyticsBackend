@@ -1,10 +1,10 @@
-import { GroupRepository } from "../../../src/repositories/groupRepository"
+import { GroupReadModelRepository } from "../../../src/repositories/groupReadModelRepository"
 import { MongoDataStorageMock } from "../../__mocks__/dataStorage.mock"
 
 describe("groupRepository", () => {
 
     const DATA_STORAGE = new MongoDataStorageMock()
-    const REPOSITORY = new GroupRepository(DATA_STORAGE)
+    const REPOSITORY = new GroupReadModelRepository(DATA_STORAGE)
 
     describe("getOneByKey()", () => {
         it("should call findOneByKey() from the dataStorage and return it's value", async () => {

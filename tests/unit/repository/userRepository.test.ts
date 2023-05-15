@@ -1,72 +1,36 @@
 import { UserRepository } from "../../../src/repositories/userRepository"
 import { MongoDataStorageMock } from "../../__mocks__/dataStorage.mock"
 
-describe("userRepository", () => {
+describe('userRepository', () => {
 
     const DATA_STORAGE = new MongoDataStorageMock()
     const REPOSITORY = new UserRepository(DATA_STORAGE)
+    const userData = {
+        username: 'testUsername',
+        password: 'testPassword1',
+        salt: 'testSalt',
+        userRole: 'Admin',
+        tenantId: 'testTenantId',
+        id: 'testId'
+    }
 
     describe("insertOne()", () => {
         it("should call create() from the dataStorage and return it's value", async () => {
-            DATA_STORAGE.create.mockImplementationOnce(() => Promise.resolve({
-                id: 'testId',
-                userId: 'testUserId',
-                todos: 2,
-                completedTodos: 1
-            }))
+            DATA_STORAGE.create.mockImplementationOnce(() => Promise.resolve(userData))
 
-            const result = await REPOSITORY.insertOne({
-                userId: 'testUserId',
-                todos: 2,
-                completedTodos: 1
-            })
+            const { id, ...userDataParam } = userData
+            const result = await REPOSITORY.insertOne(userDataParam)
 
-            expect(result).toEqual({
-                id: 'testId',
-                userId: 'testUserId',
-                todos: 2,
-                completedTodos: 1
-            })
+            expect(result).toEqual(userData)
         })
     })
 
     describe("getOneByKey()", () => {
-        it("should call findOneByKey() from the DataStorage and return it's value", async () => {
-            DATA_STORAGE.findOneByKey.mockImplementationOnce(() => Promise.resolve({
-                id: 'testId',
-                userId: 'testUserId',
-                todos: 2,
-                completedTodos: 1
-            }))
-    
-            const result = await REPOSITORY.getOneByKey({ userId: 'testUserId' })
+        it("should call findOneByKey() from the dataStorage and return it's value", async () => {
+            DATA_STORAGE.findOneByKey.mockImplementationOnce(() => Promise.resolve(userData))
+            const result = await REPOSITORY.getOneByKey({ id: userData.id })
 
-            expect(result).toEqual({
-                id: 'testId',
-                userId: 'testUserId',
-                todos: 2,
-                completedTodos: 1
-            })
-        })
-    })
-
-    describe("updateOne()", () => {
-        it("should call update() from the data storage and return it's value", async () => {
-            DATA_STORAGE.update.mockImplementationOnce(() => Promise.resolve({
-                id: 'testId',
-                userId: 'testUserId',
-                todos: 2,
-                completedTodos: 1
-            }))
-
-            const result = await REPOSITORY.updateOne({ userId: 'testUserId' }, { todos: 2 })
-
-            expect(result).toEqual({
-                id: 'testId',
-                userId: 'testUserId',
-                todos: 2,
-                completedTodos: 1
-            })
+            expect(result).toEqual(userData)
         })
     })
 })

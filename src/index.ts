@@ -1,14 +1,14 @@
 import cors from 'cors'
 import express from 'express'
-import { GroupCRUD } from './crud/groupCRUD'
-import { UserCRUD } from './crud/userCRUD'
+import { GroupReadModelCRUD } from './crud/groupReadModelCRUD'
+import { UserReadModelCRUD } from './crud/userReadModelCRUD'
 import { MongoDataStorage } from './dataStorage/MongoDataStorage'
 import { GroupReadModelEntity } from './entities/GroupReadModelEntity'
 import { UserReadModelEntity } from './entities/UserReadModelEntity'
 import { GroupReadModel } from './entities/mongo/groupReadModelSchema'
 import { UserReadModel } from './entities/mongo/userReadModelSchema'
-import { GroupRepository } from './repositories/groupRepository'
-import { UserRepository } from './repositories/userRepository'
+import { GroupReadModelRepository } from './repositories/groupReadModelRepository'
+import { UserReadModelRepository } from './repositories/userReadModelRepository'
 import { EventHandler } from './utils/EventHandler/EventHandler'
 import { connectDatabase } from './utils/connectDatabase'
 
@@ -18,11 +18,11 @@ app.use(express.json())
 app.use(cors())
 
 const USER_DATA_STORAGE = new MongoDataStorage<UserReadModelEntity>(UserReadModel)
-const USER_REPOSITORY = new UserRepository(USER_DATA_STORAGE)
-const USER_CRUD = new UserCRUD(USER_REPOSITORY)
+const USER_REPOSITORY = new UserReadModelRepository(USER_DATA_STORAGE)
+const USER_CRUD = new UserReadModelCRUD(USER_REPOSITORY)
 const GROUP_DATA_STORAGE = new MongoDataStorage<GroupReadModelEntity>(GroupReadModel)
-const GROUP_REPOSITORY = new GroupRepository(GROUP_DATA_STORAGE)
-const GROUP_CRUD = new GroupCRUD(GROUP_REPOSITORY)
+const GROUP_REPOSITORY = new GroupReadModelRepository(GROUP_DATA_STORAGE)
+const GROUP_CRUD = new GroupReadModelCRUD(GROUP_REPOSITORY)
 
 app.post('/user/signup', async (req, res) => {
     res.status(200).json({message: 'not implemented yet'})

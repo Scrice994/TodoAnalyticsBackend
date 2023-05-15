@@ -1,10 +1,10 @@
-import { GroupCRUD } from "../../../src/crud/groupCRUD"
+import { GroupReadModelCRUD } from "../../../src/crud/groupReadModelCRUD"
 import { RepositoryMock } from "../../__mocks__/repository.mock"
 
-describe("GroupCRUD", () => {
+describe("GroupReadModelCRUD", () => {
 
     const REPOSITORY = new RepositoryMock()
-    const CRUD = new GroupCRUD(REPOSITORY)
+    const CRUD = new GroupReadModelCRUD(REPOSITORY)
 
     describe("readOne()", () => {
         it("should call getOneByKey() from the repository and return an obj with statusCode 200 and a response", async () => {

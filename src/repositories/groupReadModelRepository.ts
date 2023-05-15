@@ -2,7 +2,7 @@ import { IDataStorage } from "../dataStorage/IDataStorage";
 import { GroupReadModelEntity, IGroupReadModelEntity } from "../entities/GroupReadModelEntity";
 import { IRepository } from "./IRepository";
 
-export class GroupRepository implements IRepository<GroupReadModelEntity>{
+export class GroupReadModelRepository implements IRepository<GroupReadModelEntity>{
     constructor(private _dataStorage: IDataStorage<GroupReadModelEntity>){}
 
     async getOneByKey(obj: { [key: string]: unknown; }): Promise<GroupReadModelEntity> {
