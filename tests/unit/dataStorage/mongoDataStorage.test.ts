@@ -1,6 +1,6 @@
 import { MongoDataStorage } from "../../../src/dataStorage/MongoDataStorage"
 import { GroupReadModelEntity } from "../../../src/entities/GroupReadModelEntity"
-import { UserEntity } from "../../../src/entities/UserEntity."
+import { UserEntity } from "../../../src/entities/UserEntity"
 import { UserReadModelEntity } from "../../../src/entities/UserReadModelEntity"
 import { GroupReadModel } from "../../../src/entities/mongo/groupReadModelSchema"
 import { UserReadModel } from "../../../src/entities/mongo/userReadModelSchema"
