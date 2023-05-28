@@ -1,8 +1,9 @@
-import { IGroupReadModelEntity } from "../entities/GroupReadModelEntity";
 import { IEntity } from "../entities/IEntity";
 import { UserEntity } from "../entities/UserEntity";
-import { IUserReadModelEntity } from "../entities/UserReadModelEntity";
 import { IRepository } from "../repositories/IRepository";
+import { ValidCredentials } from "../utils/ValidCredentials/ValidCredentials";
+import { CryptoPasswordHandler } from "../utils/cryptPassword/CryptoPasswordHandler";
+import { PasswordHandler } from "../utils/cryptPassword/PasswordHandler";
 import { ICRUD, ICRUDResponse } from "./ICRUD";
 
 export class UserCRUD implements ICRUD<UserEntity>{
@@ -17,9 +18,34 @@ export class UserCRUD implements ICRUD<UserEntity>{
         }
     }
 
-    async create(newElement: Omit<UserEntity, "id">): Promise<ICRUDResponse<UserEntity>> {
+    async create(newElement: Omit<UserEntity, "id" | "salt">): Promise<ICRUDResponse<UserEntity>> {
         try {
-            const result = await this._repository.insertOne(newElement)
+            if(!newElement.username){
+                return this.customErrorResponse(404, 'Missing @parameter username')
+            }
+            if(!newElement.password){
+                return this.customErrorResponse(404, 'Missing @parameter password')
+            }
+        
+            const credentials = new ValidCredentials(newElement.username, newElement.password)
+        
+            const validUsername = credentials.usernameCheck()
+            const validPassword = credentials.passwordCheck()
+        
+            if(!validUsername){
+                return this.customErrorResponse(404, 'Invalid @parameter username')
+            }
+            if(!validPassword){
+                return this.customErrorResponse(404, 'Invalid @parameter password')
+            }
+
+            const cryptoObj = new PasswordHandler(new CryptoPasswordHandler()).cryptPassword(newElement.password)
+
+            const result = await this._repository.insertOne({
+                ...newElement, 
+                password: cryptoObj.hashPassword, 
+                salt: cryptoObj.salt
+            })
             return this.successfullResponse(result)
         } catch (error) {
             return this.errorResponse(error)
@@ -27,7 +53,7 @@ export class UserCRUD implements ICRUD<UserEntity>{
 
     }
 
-    async update(filter: IEntity | IUserReadModelEntity | IGroupReadModelEntity, updateElement: Partial<UserEntity>): Promise<ICRUDResponse<UserEntity>> {
+    async update(filter: IEntity , updateElement: Partial<UserEntity>): Promise<ICRUDResponse<UserEntity>> {
         throw new Error("Method not implemented.");
     }
 
@@ -36,6 +62,15 @@ export class UserCRUD implements ICRUD<UserEntity>{
             statusCode: 200,
             data: {
                 response: result
+            }
+        }
+    }
+
+    private customErrorResponse(statusCode: number, customErrorMessage: string){
+        return {
+            statusCode: statusCode,
+            data: {
+                message: customErrorMessage,
             }
         }
     }

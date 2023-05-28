@@ -16,15 +16,13 @@ describe('UserAPI', () => {
 
     const REGISTER_URL = 'http://localhost:5005/user/signup'
 
-    it.only("should return new created user", async () => {
+    it("should return new created user with his token", async () => {
         const result = await axios.post(REGISTER_URL, {
             username: 'testUsername',
             password: 'testPassword1',
             confirmPassword: 'testPassword1',
             groupName: 'testGroupName'
         })
-
-        console.log(result.data)
         
         expect(result.status).toBe(200)
         expect(result.data).toEqual({user: result.data.user, token: result.data.token, expireIn: result.data.expireIn })
@@ -34,9 +32,55 @@ describe('UserAPI', () => {
         await axios.post(REGISTER_URL, {username: 'fakeUser', password: 'testPassword1', confirmPassword: 'testPassword1', groupName: 'Akatsuki'})
         const secondUser = await axios.post(REGISTER_URL, {username: 'fakeUser2', password: 'testPassword1', confirmPassword: 'testPassword1', groupName: 'Akatsuki'})
             .catch(err => {
-                console.log(err.response)
                 expect(err.response.status).toBe(400)
                 expect(err.response.data).toEqual({ message: "This group name already exist" })
             })
+        expect(secondUser?.status).toBe(undefined)
+    })
+
+    it("Should return 400 statusCode and errorMessage if groupName already exist", async () => {
+        await axios.post(REGISTER_URL, {username: 'fakeUser', password: 'testPassword1', confirmPassword: 'testPassword1', groupName: 'Akatsuki'})
+        const secondUser = await axios.post(REGISTER_URL, {username: 'fakeUser', password: 'testPassword1', confirmPassword: 'testPassword1', groupName: 'Phantom troupe'})
+            .catch(err => {
+                expect(err.response.status).toBe(400)
+                expect(err.response.data).toEqual({ message: "This user already exist" })
+            })
+        expect(secondUser?.status).toBe(undefined)
+    })
+
+    it("Should return 404 statusCode and errorMessage if username is not provided", async () => {
+        const createUser = await axios.post(REGISTER_URL, {username: '', password: 'testPassword1', confirmPassword: 'testPassword1', groupName: 'Akatsuki'})
+            .catch(err => {
+                expect(err.response.status).toBe(404)
+                expect(err.response.data).toEqual({ message: "Missing @parameter username" })
+            })
+        expect(createUser?.status).toBe(undefined)
+    })
+
+    it("Should return 404 statusCode and errorMessage if password is not provided", async () => {
+        const createUser = await axios.post(REGISTER_URL, {username: 'testUsername', password: '', confirmPassword: 'testPassword1', groupName: 'Akatsuki'})
+            .catch(err => {
+                expect(err.response.status).toBe(404)
+                expect(err.response.data).toEqual({ message: "Missing @parameter password" })
+            })
+        expect(createUser?.status).toBe(undefined)
+    })
+
+    it("Should return 400 statusCode and errorMessage if username provided in invalid", async () => {
+        const createUser = await axios.post(REGISTER_URL, {username: 'a', password: 'testPassword123', confirmPassword: 'testPassword1', groupName: 'Akatsuki'})
+            .catch(err => {
+                expect(err.response.status).toBe(404)
+                expect(err.response.data).toEqual({ message: "Invalid @parameter username" })
+            })
+        expect(createUser?.status).toBe(undefined)
+    })
+
+    it("Should return 400 statusCode and errorMessage if password provided is invalid", async () => {
+        const createUser = await axios.post(REGISTER_URL, {username: 'testUsername', password: 'testPassword', confirmPassword: 'testPassword1', groupName: 'Akatsuki'})
+            .catch(err => {
+                expect(err.response.status).toBe(404)
+                expect(err.response.data).toEqual({ message: "Invalid @parameter password" })
+            })
+        expect(createUser?.status).toBe(undefined)
     })
 })

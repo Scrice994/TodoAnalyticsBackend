@@ -15,226 +15,221 @@ describe("event-listenerAPI", () => {
         await closeDatabaseConnection()
     })
 
-    describe("Event: genericEvent", () => {
-        it("Should return a Entities obj with a model for user and a group model equal null", async () => {
-            const result = await axios.post('http://localhost:5005/event-listener', { event: { 
-                type: 'genericEvent',
-                data: {
-                    text: 'testText',
-                    completed: false,
-                    userId: 'testUserId',
-                    id: 'testId'
-                }
-            }})
-    
-            expect(result.status).toBe(200)
-            expect(result.data.Entities).toEqual({
-                    User: {
-                        userId: 'testUserId',
-                        todos: 0,
-                        completedTodos: 0,
-                        id: result.data.Entities.User.id
-                    },
-                    Group: null
-            })
+    const eventListenerUrl = 'http://localhost:5005/eventListener'
+
+    it("should return statusCode 400 and errorMessage if it recived a event not in the right format", async () => {
+        const notEvent = await axios.post(eventListenerUrl, { event: { 
+            type: 'genericEvent',
+            data: {
+                text: 'testText',
+            }
+        }}).catch(res => {
+            expect(res.response.status).toBe(400)
+            expect(res.response.data).toEqual({ message: 'Event recived is not in the right format'})
         })
-    
-        it("Should return a Entities obj with a model for user and one for group", async () => {
-            const result = await axios.post('http://localhost:5005/event-listener', { event: { 
-                type: 'genericEvent',
-                data: {
-                    text: 'testText',
-                    completed: false,
-                    userId: 'testUserId',
-                    tenantId: 'testTenantId',
-                    id: 'testId'
-                }
-            }})
-    
-            expect(result.status).toBe(200)
-            expect(result.data).toEqual({ Entities: {
-                    User: {
-                        userId: 'testUserId',
-                        todos: 0,
-                        completedTodos: 0,
-                        id: result.data.Entities.User.id
-                    },
-                    Group: {
-                        tenantId: 'testTenantId',
-                        todos: 0,
-                        completedTodos: 0,
-                        id: result.data.Entities.Group.id 
-                    }
-                }
-            })
+        
+        expect(notEvent?.status).toBe(undefined)
+    })
+
+    it("should return statusCode 500 when an error occour while finding group in the db", async () => {
+        const requestWithWrongTenantId = await axios.post(eventListenerUrl, { 
+            type: 'newTodo',
+            data: {
+                text: 'testText',
+                completed: false,
+                tenantId: { newTenantId: {}}
+            }
+        }).catch( res => {
+            expect(res.response.status).toBe(500)
         })
+
+        expect(requestWithWrongTenantId?.status).toBe(undefined)
+    })
+
+    it("should return statusCode 404 and errorMessage when tenantId is missing", async () => {
+        const event = await axios.post(eventListenerUrl, { 
+            type: 'newTodo',
+            data: {
+                text: 'testText',
+                completed: false,
+                id: 'testId'
+            }
+        }).catch(res => {
+            expect(res.response.status).toBe(404)
+            expect(res.response.data).toEqual({ message: 'Missing @parameter tenantId' })
+        })
+
+        expect(event?.status).toBe(undefined)
+    })
+
+    it("should return statusCode 404 and erroMessage when an unknown event is recived", async () => {
+        const event = await axios.post(eventListenerUrl, { 
+            type: 'genericEvent',
+            data: {
+                text: 'testText',
+                completed: false,
+                tenantId: 'testTenantId',
+                id: 'testId'
+            }
+        }).catch(err => {
+            expect(err.response.status).toBe(404)
+            expect(err.response.data).toEqual({ message: 'Invalid @event recived' })
+        })
+
+        expect(event?.status).toBe(undefined)
     })
 
     describe("Event: newTodo", () => {
         it("Should increase todos by 1 when recive a newTodo event", async () => {
-            const firstEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
+            const event = await axios.post(eventListenerUrl, { 
                 type: 'newTodo',
                 data: {
                     text: 'testText',
                     completed: false,
-                    userId: 'testUserId',
+                    tenantId: 'testTenantId',
                     id: 'testId'
                 }
-            }})
+            })
+
     
-            expect(firstEvent.data.Entities.User).toEqual({ ...firstEvent.data.Entities.User, todos: 1 })
+            expect(event.data).toEqual({ response: { tenantId: 'testTenantId', todos: 1, completedTodos: 0, id: event.data.response.id } })
         })
     
         it("Should increase by 2 todos when recive 2 newTodo events", async () => {
-            const firstEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
+            await axios.post(eventListenerUrl, { 
                 type: 'newTodo',
                 data: {
                     text: 'testText',
                     completed: false,
-                    userId: 'testUserId',
+                    tenantId: 'testTenantId',
                     id: 'testId'
                 }
-            }})
-
-            console.log(firstEvent.data)
+            })
     
-            const secondEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
+            const secondEvent = await axios.post(eventListenerUrl, { 
                 type: 'newTodo',
                 data: {
                     text: 'testText2',
                     completed: false,
-                    userId: 'testUserId',
+                    tenantId: 'testTenantId',
                     id: 'testId2'
                 }
-            }})
-
-            console.log(secondEvent.data)
+            })
     
-            expect(secondEvent.data.Entities.User).toEqual({ ...secondEvent.data.Entities.User, todos: 2 })
+            expect(secondEvent.data).toEqual({ response: { ...secondEvent.data.response, todos: 2 } })
         })
     })
 
     describe("Event: updateTodo", () => {
         it("should increase completedTodos when an event with a completed todo true is recived", async () => {
-            const firstEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
+            await axios.post(eventListenerUrl, { 
                 type: 'newTodo',
                 data: {
                     text: 'testText',
                     completed: false,
-                    userId: 'testUserId',
                     tenantId: 'testTenantId',
                     id: 'testId'
                 }
-            }})
+            })
     
-            const secondEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
+            const secondEvent = await axios.post(eventListenerUrl, { 
                 type: 'updateTodo',
                 data: {
                     text: 'testText',
                     completed: true,
-                    userId: 'testUserId',
                     tenantId: 'testTenantId',
                     id: 'testId'
                 }
-            }}) 
+            }) 
     
             expect(secondEvent.status).toBe(200)
-            expect(secondEvent.data.Entities.User).toEqual({ ...secondEvent.data.Entities.User, completedTodos: 1 })
-            expect(secondEvent.data.Entities.Group).toEqual({ ...secondEvent.data.Entities.Group, completedTodos: 1 })
+            expect(secondEvent.data).toEqual({ response: { ...secondEvent.data.response, completedTodos: 1 }})
         })
     
         it("should descrease completedTodos when an event with a todo compleated false is recived", async () => {
-            const firstEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
+            await axios.post(eventListenerUrl, { 
                 type: 'newTodo',
                 data: {
                     text: 'testText',
                     completed: false,
-                    userId: 'testUserId',
                     tenantId: 'testTenantId',
                     id: 'testId'
                 }
-            }})
+            })
     
-            const secondEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
+            const secondEvent = await axios.post(eventListenerUrl, { 
                 type: 'updateTodo',
                 data: {
                     text: 'testText',
                     completed: true,
-                    userId: 'testUserId',
                     tenantId: 'testTenantId',
                     id: 'testId'
                 }
-            }})
+            }) 
             
-            const thirdEvent = await axios.post('http://localhost:5005/event-listener', { event: {
+            const thirdEvent = await axios.post(eventListenerUrl, { 
                 type: 'updateTodo',
                 data: {
                     text: 'testText',
                     completed: false,
-                    userId: 'testUserId',
                     tenantId: 'testTenantId',
                     id: 'testId'
                 }
-            }})
+            }) 
     
             expect(thirdEvent.status).toBe(200)
-            expect(thirdEvent.data.Entities.User).toEqual({ ...thirdEvent.data.Entities.User, completedTodos: 0 })
-            expect(thirdEvent.data.Entities.Group).toEqual({ ...thirdEvent.data.Entities.Group, completedTodos: 0 })
+            expect(thirdEvent.data).toEqual({ response: { ...thirdEvent.data.response, completedTodos: 0 } })
         })
     })
 
     describe("Event: deleteTodo", () => {
         it("Should descrease Todos by 1 when recived a deletedTodo event", async () => {
-            const firstEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
+            await axios.post(eventListenerUrl, { 
                 type: 'newTodo',
                 data: {
                     text: 'testText',
                     completed: false,
-                    userId: 'testUserId',
                     tenantId: 'testTenantId',
                     id: 'testId'
                 }
-            }})
+            })
 
-            const secondEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
+            const secondEvent = await axios.post(eventListenerUrl, { 
                 type: 'deleteTodo',
                 data: {
                     text: 'testText',
                     completed: false,
-                    userId: 'testUserId',
                     tenantId: 'testTenantId',
                     id: 'testId'
                 }
-            }})
+            })
 
             expect(secondEvent.status).toBe(200)
-            expect(secondEvent.data.Entities.User).toEqual({ ...secondEvent.data.Entities.User, todos: 0 })
+            expect(secondEvent.data).toEqual({ response: { ...secondEvent.data.response, todos: 0 } })
         })
 
         it("Should descrease also completedTodos if the deleted Todo was completed", async () => {
-            const firstEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
+            await axios.post(eventListenerUrl, { 
                 type: 'newTodo',
                 data: {
                     text: 'testText',
                     completed: false,
-                    userId: 'testUserId',
                     tenantId: 'testTenantId',
                     id: 'testId'
                 }
-            }})
+            })
 
-            const secondEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
+            await axios.post(eventListenerUrl, { 
                 type: 'updateTodo',
                 data: {
                     text: 'testText',
                     completed: true,
-                    userId: 'testUserId',
                     tenantId: 'testTenantId',
                     id: 'testId'
                 }
-            }})
+            })
 
-            const thirdEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
+            const thirdEvent = await axios.post(eventListenerUrl, { 
                 type: 'deleteTodo',
                 data: {
                     text: 'testText',
@@ -243,81 +238,36 @@ describe("event-listenerAPI", () => {
                     tenantId: 'testTenantId',
                     id: 'testId'
                 }
-            }}) 
+            }) 
             
             expect(thirdEvent.status).toBe(200)
-            expect(thirdEvent.data.Entities.User).toEqual({ ...thirdEvent.data.Entities.User, todos: 0, completedTodos: 0 })
-            expect(thirdEvent.data.Entities.Group).toEqual({ ...thirdEvent.data.Entities.Group, todos: 0, completedTodos: 0 })
+            expect(thirdEvent.data).toEqual({ response: { ...thirdEvent.data.response, todos: 0, completedTodos: 0 }})
         })
     })
 
     describe("Event: deleteAllTodos", () => {
-        it("Should reset todos and completedTodos in case of single User", async () => {
-            const firstEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
-                type: 'newTodo',
-                data: {
-                    text: 'testText',
-                    completed: false,
-                    userId: 'testUserId',
-                    id: 'testId'
-                }
-            }})
-
-            const secondEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
-                type: 'newTodo',
-                data: {
-                    text: 'testText2',
-                    completed: false,
-                    userId: 'testUserId',
-                    id: 'testId2'
-                }
-            }})
-
-            const deleteAllTodosEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
-                type: 'deleteAllTodos',
-                data: { 
-                    deletedTodos: [{
-                    text: 'testText2',
-                    completed: false,
-                    id: 'testId2'
-                    },
-                    {
-                        text: 'testText',
-                        completed: false,
-                        userId: 'testUserId',
-                        id: 'testId'
-                    }],
-                    userId: 'testUserId'
-                }
-            }})
-
-            expect(deleteAllTodosEvent.data.Entities.User).toEqual({ ...deleteAllTodosEvent.data.Entities.User, todos: 0, completedTodos: 0 })
-        })
-
         it("Should descrease todos and completedTodos from the group read model", async () => {
-            const firstEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
+            await axios.post(eventListenerUrl, { 
                 type: 'newTodo',
                 data: {
                     text: 'testText',
                     completed: false,
-                    userId: 'testUserId',
                     tenantId: 'testTenantId',
                     id: 'testId'
                 }
-            }})
+            })
 
-            const secondEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
+            await axios.post(eventListenerUrl, { 
                 type: 'newTodo',
                 data: {
-                    text: 'testText2',
+                    text: 'testText',
                     completed: false,
-                    userId: 'testUserId',
                     tenantId: 'testTenantId',
-                    id: 'testId2'
+                    id: 'testId'
                 }
-            }})
+            })
 
-            const thirdEvent = await axios.post('http://localhost:5005/event-listener', { event: {
+            const thirdEvent = await axios.post(eventListenerUrl, {
                 type: 'updateTodo',
                 data: {
                     text: 'testText2',
@@ -326,9 +276,9 @@ describe("event-listenerAPI", () => {
                     tenantId: 'testTenantId',
                     id: 'testId2'
                 }
-            }})
+            })
 
-            const deleteAllTodosEvent = await axios.post('http://localhost:5005/event-listener', { event: { 
+            const deleteAllTodosEvent = await axios.post(eventListenerUrl, { 
                 type: 'deleteAllTodos',
                 data: { 
                     deletedTodos: [{
@@ -347,9 +297,9 @@ describe("event-listenerAPI", () => {
                     userId: 'testUserId',
                     tenantId: 'testTenantId',
                 }
-            }})
+            })
 
-            expect(deleteAllTodosEvent.data.Entities.Group).toEqual({ ...deleteAllTodosEvent.data.Entities.Group, todos: 0, completedTodos: 0 })
+            expect(deleteAllTodosEvent.data).toEqual({ response: { ...deleteAllTodosEvent.data.response, todos: 0, completedTodos: 0 } })
         })
     })
 })

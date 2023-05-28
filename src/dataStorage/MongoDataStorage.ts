@@ -1,6 +1,5 @@
 import { IGroupReadModelEntity } from "../entities/GroupReadModelEntity";
 import { IEntity } from "../entities/IEntity";
-import { IUserReadModelEntity } from "../entities/UserReadModelEntity";
 import { IDataStorage } from "./IDataStorage";
 import mongoose from "mongoose";
 
@@ -27,7 +26,7 @@ export class MongoDataStorage<T extends IEntity> implements IDataStorage<T>{
         return result
     }
     
-    async update(filter: IUserReadModelEntity | IGroupReadModelEntity, toUpdate: Partial<T>): Promise<T> {
+    async update(filter: IGroupReadModelEntity, toUpdate: Partial<T>): Promise<T> {
       
         const updateEntity = await this._model.findOneAndUpdate(filter, toUpdate, { new: true })
 

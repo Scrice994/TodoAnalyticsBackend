@@ -1,8 +1,6 @@
 import { IDataStorage } from "../dataStorage/IDataStorage";
-import { IGroupReadModelEntity } from "../entities/GroupReadModelEntity";
 import { IEntity } from "../entities/IEntity";
 import { UserEntity } from "../entities/UserEntity";
-import { IUserReadModelEntity } from "../entities/UserReadModelEntity";
 import { IRepository } from "./IRepository";
 
 export class UserRepository implements IRepository<UserEntity>{
