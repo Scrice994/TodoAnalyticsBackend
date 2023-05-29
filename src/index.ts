@@ -1,7 +1,6 @@
 import axios from 'axios'
 import cors from 'cors'
 import express from 'express'
-import { ICRUDResponse } from './crud/ICRUD'
 import { GroupReadModelCRUD } from './crud/groupReadModelCRUD'
 import { UserCRUD } from './crud/userCRUD'
 import { MongoDataStorage } from './dataStorage/MongoDataStorage'
@@ -11,7 +10,6 @@ import { GroupReadModel } from './entities/mongo/groupReadModelSchema'
 import { User } from './entities/mongo/userSchema'
 import { GroupReadModelRepository } from './repositories/groupReadModelRepository'
 import { UserRepository } from './repositories/userRepository'
-import { ValidCredentials } from './utils/ValidCredentials/ValidCredentials'
 import { connectDatabase } from './utils/connectDatabase'
 import { CryptoPasswordHandler } from './utils/cryptPassword/CryptoPasswordHandler'
 import { PasswordHandler } from './utils/cryptPassword/PasswordHandler'
@@ -61,6 +59,29 @@ app.post('/user/signup', async (req, res) => {
     }
         
     return res.status(newUser.statusCode).json(newUser.data)
+})
+
+app.post('/user/login', async (req, res) => {
+    const { username, password } = req.body
+    
+    const userInDb = await USER_CRUD.readOne({username: username})
+
+
+    if('response' in userInDb.data && userInDb.data.response !== null){
+       const user = userInDb.data.response
+
+       const passwordVerification = new PasswordHandler(new CryptoPasswordHandler()).checkPassword(password, user.password, user.salt)
+
+        if(!passwordVerification){
+            return res.status(401).json({ message: "Wrong credentials" })
+        }
+
+        const jwt = new JWTHandler(new JsonWebTokenPkg()).issueJWT(user, secret)
+
+        return res.status(200).json({ user: user, token: jwt.token, expireIn: jwt.expires })
+    }
+
+    return res.status(401).json({ message: "Wrong credentials" })
 })
 
 app.post('/eventListener', async (req, res) => {
