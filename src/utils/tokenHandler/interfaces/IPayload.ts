@@ -1,4 +1,4 @@
-export interface ITokenPayloadEntity {
+export interface IPayload {
     [key: string]: any;
     iss?: string | undefined;
     sub?: string | undefined;

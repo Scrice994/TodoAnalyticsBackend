@@ -1,6 +1,7 @@
 import axios from 'axios'
 import cors from 'cors'
 import express from 'express'
+import { authMiddleware } from './middlewares/AuthMiddleware'
 import { GroupReadModelCRUD } from './crud/groupReadModelCRUD'
 import { UserCRUD } from './crud/userCRUD'
 import { MongoDataStorage } from './dataStorage/MongoDataStorage'
@@ -13,8 +14,8 @@ import { UserRepository } from './repositories/userRepository'
 import { connectDatabase } from './utils/connectDatabase'
 import { CryptoPasswordHandler } from './utils/cryptPassword/CryptoPasswordHandler'
 import { PasswordHandler } from './utils/cryptPassword/PasswordHandler'
-import { JWTHandler } from './utils/tokenHandler/JWTHandler'
-import { JsonWebTokenPkg } from './utils/tokenHandler/JsonWebTokenPkg'
+import { JWTHandler } from './utils/tokenHandler/JWTHandler/JWTHandler'
+import { JsonWebTokenPkg } from './utils/tokenHandler/JsonWebTokenPkg/JsonWebTokenPkg'
 
 const app = express()
 
@@ -27,7 +28,15 @@ const GROUP_READ_CRUD = new GroupReadModelCRUD(GROUP_READ_REPOSITORY)
 const USER_DATA_STORAGE = new MongoDataStorage<UserEntity>(User)
 const USER_REPOSITORY = new UserRepository(USER_DATA_STORAGE)
 const USER_CRUD = new UserCRUD(USER_REPOSITORY)
-const secret = "ahfiokwplagjobawoipèaclrljbapfoej"
+export const secret = "ahfiokwplagjobawoipèaclrljbapfoej"
+
+app.get('/getModel', authMiddleware, async (req, res) => {
+    const tenantId = req.tenantId
+
+    const readModel = await GROUP_READ_CRUD.readOne({ tenantId })
+
+    return res.status(readModel.statusCode).json(readModel.data)
+})
 
 app.post('/user/signup', async (req, res) => {
     const { username, password, groupName } = req.body
@@ -38,7 +47,6 @@ app.post('/user/signup', async (req, res) => {
     }
 
     const findExistingGroup = await USER_CRUD.readOne({ tenantId: groupName })
-    console.log(findExistingGroup)
     if('response' in findExistingGroup.data && findExistingGroup.data.response !== null){
         return res.status(400).json({ message: "This group name already exist"})
     }
