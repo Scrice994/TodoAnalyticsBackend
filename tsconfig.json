@@ -6,7 +6,7 @@
           "es2018"
       ],
       "baseUrl": "./",
-      "outDir": "./build",
+      "outDir": "./dist",
       "declaration": true,
       "strict": true,
       "noImplicitAny": false,
@@ -30,6 +30,6 @@
   "exclude": [
       "node_modules",
       "tests",
-      "build"
+      "dist"
   ],
 }

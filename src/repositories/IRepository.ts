@@ -1,4 +1,4 @@
-import { IGroupReadModelEntity } from "../entities/GroupReadModelEntity";
+import { IGroupReadModelEntity } from "../entities/IEntity";
 import { IEntity } from "../entities/IEntity";
 
 export interface IRepository<T extends IEntity> {

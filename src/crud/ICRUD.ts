@@ -1,4 +1,4 @@
-import { GroupReadModelEntity } from "../entities/GroupReadModelEntity";
+import { GroupReadModelEntity } from "../entities/mongo/groupReadModelSchema";
 import { IEntity } from "../entities/IEntity";
 
 

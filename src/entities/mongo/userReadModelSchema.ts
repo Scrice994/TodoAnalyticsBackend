@@ -3,11 +3,13 @@ import * as uuid from 'uuid'
 
 const userReadModelSchema = new Schema({
     id: { type: String, default: uuid.v4 },
+    username: { type: String, required: true },
     userId: { type: String, required: true },
-    todos: { type: Number, default: 0 },
-    completedTodos: { type: Number, default: 0}
+    todos: { type: Number, required: false, default: 0 },
+    completedTodos: { type: Number, required: false, default: 0 },
+    tenantId: { type: String }
 })
 
-type User = InferSchemaType<typeof userReadModelSchema>
+export type UserReadModelEntity = InferSchemaType<typeof userReadModelSchema>
 
-export const UserReadModel = model<User>('UserRead', userReadModelSchema)
+export const UserReadModel = model<UserReadModelEntity>('UserRead', userReadModelSchema)

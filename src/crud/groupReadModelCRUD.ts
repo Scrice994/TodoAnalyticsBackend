@@ -1,4 +1,5 @@
-import { GroupReadModelEntity } from "../entities/GroupReadModelEntity";
+import { IEntity } from "src/entities/IEntity";
+import { GroupReadModelEntity } from "../entities/mongo/groupReadModelSchema";
 import { IRepository } from "../repositories/IRepository";
 import { ICRUD } from "./ICRUD";
 import createHttpError from "http-errors";
@@ -22,41 +23,10 @@ export class GroupReadModelCRUD implements ICRUD<GroupReadModelEntity>{
         return result;
     }
 
-    async update(elementToUpdate: GroupReadModelEntity, event: any): Promise<GroupReadModelEntity> {
-        const { tenantId, todos, completedTodos, id } = elementToUpdate
+    async update(elementToUpdate: Required<IEntity> & Partial<GroupReadModelEntity>): Promise<GroupReadModelEntity> {
+        const { id, ...elementsToUpdate } = elementToUpdate
 
-        if(event.type === 'newTodo'){
-            const result = await this._repository.updateOne({ tenantId }, { todos: todos! + 1 });
-            return result;
-        }
-
-        if(event.type === 'updateTodo'){
-            if(event.data.completed === true){
-                const result = await this._repository.updateOne({ tenantId }, { completedTodos: completedTodos! + 1 });
-                return result;
-            } else {
-                const result = await this._repository.updateOne({ tenantId }, { completedTodos: completedTodos! - 1 })
-                return result;
-            }
-        }
-
-        if(event.type === 'deleteTodo'){
-            if(event.data.completed === true){
-                const result = await this._repository.updateOne({ tenantId }, { todos: todos! - 1, completedTodos: completedTodos! - 1 })
-                return result;
-            } else {
-                const result = await this._repository.updateOne({ tenantId }, { todos: todos! - 1 })
-                return result;
-            }
-        }
-
-        if(event.type === 'deleteAllTodos'){
-            const deletedTodos: any[] = event.data.deletedTodos
-            const deletedCompletedTodos: any[] = deletedTodos.filter((todo: any) => todo.completed === true)
-            const result = await this._repository.updateOne({ tenantId }, { todos: todos! - deletedTodos.length, completedTodos: completedTodos! - deletedCompletedTodos.length })
-            return result;
-        }
-
-        return createHttpError(404, 'Invalid @event recived');
+        const result = await this._repository.updateOne({ id }, elementsToUpdate);
+        return result;
     }
 }
