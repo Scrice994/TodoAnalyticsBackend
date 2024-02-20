@@ -1,5 +1,5 @@
-import { IEntity } from "src/entities/IEntity";
-import { GroupReadModelEntity } from "../entities/mongo/groupReadModelSchema";
+import { IEntity } from "src/entities/Entities";
+import { GroupReadModelEntity } from "../entities/Entities";
 import { IRepository } from "../repositories/IRepository";
 import { ICRUD } from "./ICRUD";
 import createHttpError from "http-errors";
@@ -14,6 +14,7 @@ export class GroupReadModelCRUD implements ICRUD<GroupReadModelEntity>{
         const result = await this._repository.getOneByKey(obj);
         return result;
     }
+
     async create(newElement: Omit<GroupReadModelEntity, "id">): Promise<GroupReadModelEntity> {
         if(!newElement.tenantId){
             return createHttpError(404, 'Missing @parameter tenantId')
@@ -24,9 +25,11 @@ export class GroupReadModelCRUD implements ICRUD<GroupReadModelEntity>{
     }
 
     async update(elementToUpdate: Required<IEntity> & Partial<GroupReadModelEntity>): Promise<GroupReadModelEntity> {
-        const { id, ...elementsToUpdate } = elementToUpdate
+        if(!elementToUpdate.id){
+            return createHttpError(404, 'Missing @parameter id');
+        }
 
-        const result = await this._repository.updateOne({ id }, elementsToUpdate);
+        const result = await this._repository.updateOne(elementToUpdate);
         return result;
     }
 }

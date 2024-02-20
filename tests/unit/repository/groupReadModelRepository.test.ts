@@ -59,7 +59,7 @@ describe("groupRepository", () => {
                 completedTodos: 1
             }))
 
-            const result = await REPOSITORY.updateOne({ tenantId: 'testTenantId' }, { todos: 2 })
+            const result = await REPOSITORY.updateOne({ id: 'testId', todos: 2 })
 
             expect(result).toEqual({
                 id: 'testId',

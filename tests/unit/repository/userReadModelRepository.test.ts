@@ -6,6 +6,28 @@ describe("userRepository", () => {
     const DATA_STORAGE = new MongoDataStorageMock()
     const REPOSITORY = new UserReadModelRepository(DATA_STORAGE)
 
+    describe("getAll()", () => {
+        it("should call find() from the dataStorage and return it's value", async () => {
+            DATA_STORAGE.find.mockImplementationOnce(() => Promise.resolve([{
+                id: 'testId',
+                userId: 'testUserId',
+                todos: 2,
+                completedTodos: 1
+            }]));
+
+            const result = await REPOSITORY.getAll({ userId: 'testUserId' });
+
+            expect(result).toEqual([
+                {
+                    id: 'testId',
+                    userId: 'testUserId',
+                    todos: 2,
+                    completedTodos: 1
+                },
+            ])
+        });
+    });
+
     describe("insertOne()", () => {
         it("should call create() from the dataStorage and return it's value", async () => {
             DATA_STORAGE.create.mockImplementationOnce(() => Promise.resolve({
@@ -13,20 +35,21 @@ describe("userRepository", () => {
                 userId: 'testUserId',
                 todos: 2,
                 completedTodos: 1
-            }))
+            }));
 
             const result = await REPOSITORY.insertOne({
+                username: 'testUsername',
                 userId: 'testUserId',
                 todos: 2,
                 completedTodos: 1
-            })
+            });
 
             expect(result).toEqual({
                 id: 'testId',
                 userId: 'testUserId',
                 todos: 2,
                 completedTodos: 1
-            })
+            });
         })
     })
 
@@ -37,16 +60,16 @@ describe("userRepository", () => {
                 userId: 'testUserId',
                 todos: 2,
                 completedTodos: 1
-            }))
+            }));
     
-            const result = await REPOSITORY.getOneByKey({ userId: 'testUserId' })
+            const result = await REPOSITORY.getOneByKey({ userId: 'testUserId' });
 
             expect(result).toEqual({
                 id: 'testId',
                 userId: 'testUserId',
                 todos: 2,
                 completedTodos: 1
-            })
+            });
         })
     })
 
@@ -57,16 +80,15 @@ describe("userRepository", () => {
                 userId: 'testUserId',
                 todos: 2,
                 completedTodos: 1
-            }))
+            }));
 
-            const result = await REPOSITORY.updateOne({ userId: 'testUserId' }, { todos: 2 })
-
+            const result = await REPOSITORY.updateOne({ id: 'testId', todos: 2 });
             expect(result).toEqual({
                 id: 'testId',
                 userId: 'testUserId',
                 todos: 2,
                 completedTodos: 1
-            })
+            });
         })
     })
 })

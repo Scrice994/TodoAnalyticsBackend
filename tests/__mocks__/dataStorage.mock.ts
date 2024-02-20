@@ -1,5 +1,5 @@
 import { IDataStorage } from "../../src/dataStorage/IDataStorage";
-import { IEntity } from "../../src/entities/IEntity";
+import { IEntity } from "../../src/entities/Entities";
 
 export class MongoDataStorageMock<T extends IEntity> implements IDataStorage<T>{
 

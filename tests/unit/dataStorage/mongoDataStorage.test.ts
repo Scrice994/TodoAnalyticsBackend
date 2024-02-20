@@ -26,7 +26,23 @@ describe("mongoDataStorage", () => {
         userId: 'testUserId'
     }
 
-    
+    describe("find()", () => {
+        it("should return an array of group entities",async () => {
+            const createEntity = await GROUP_STORAGE.create({ tenantId: 'testTenantId' });
+
+            const findEntities = await GROUP_STORAGE.find({ tenantId: createEntity.tenantId });
+
+            expect(findEntities).toEqual([createEntity]);
+        });
+
+        it("should return an array of user entities",async () => {
+            const createEntity = await USER_STORAGE.create(userData);
+
+            const findEntities = await USER_STORAGE.find({ tenantId: createEntity.tenantId });
+
+            expect(findEntities).toEqual([createEntity]);
+        });
+    });
     
     describe("create()", () => {
 

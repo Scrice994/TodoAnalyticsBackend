@@ -1,5 +1,5 @@
 import { GroupReadModelEntity } from "../entities/mongo/groupReadModelSchema";
-import { IEntity } from "../entities/IEntity";
+import { IEntity } from "../entities/Entities";
 
 
 export interface ICRUD<T extends IEntity>{

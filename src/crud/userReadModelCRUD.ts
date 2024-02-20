@@ -1,5 +1,5 @@
-import { IEntity } from "src/entities/IEntity";
-import { UserReadModelEntity } from "../entities/mongo/userReadModelSchema";
+import { IEntity } from "src/entities/Entities";
+import { UserReadModelEntity } from "../entities/Entities";
 import { IRepository } from "../repositories/IRepository";
 import { ICRUD } from "./ICRUD";
 import createHttpError from "http-errors";
@@ -25,9 +25,11 @@ export class UserReadModelCRUD implements ICRUD<UserReadModelEntity>{
     }
 
     async update(elementToUpdate: Required<IEntity> & Partial<UserReadModelEntity>): Promise<UserReadModelEntity> {
-        const { id, ...elementsToUpdate } = elementToUpdate;
+        if(!elementToUpdate.id){
+            return createHttpError(404, 'Missing @parameter id');
+        }
 
-        const result = await this._repository.updateOne({ id }, elementsToUpdate);
+        const result = await this._repository.updateOne(elementToUpdate);
         return result;
     }
 }

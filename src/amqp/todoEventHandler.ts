@@ -1,88 +1,82 @@
-import { GroupReadModelCRUD } from "../crud/groupReadModelCRUD";
-import { GroupReadModelEntity, GroupReadModel } from "../entities/mongo/groupReadModelSchema";
-import { GroupReadModelRepository } from "../repositories/groupReadModelRepository";
-import { UserReadModelCRUD } from "../crud/userReadModelCRUD";
 import { MongoDataStorage } from "../dataStorage/MongoDataStorage";
-import { UserReadModel, UserReadModelEntity } from "../entities/mongo/userReadModelSchema";
-import { UserReadModelRepository } from "../repositories/userReadModelRepository";
+import { GroupReadModel, Group } from "../entities/mongo/groupReadModelSchema";
+import { UserReadModel, User } from "../entities/mongo/userReadModelSchema";
+import { NewTodoEvent, TodoEventTypes } from "./events";
 
-const USER_READ_DATA_STORAGE = new MongoDataStorage<UserReadModelEntity>(UserReadModel);
-const USER_READ_REPOSITORY = new UserReadModelRepository(USER_READ_DATA_STORAGE);
-const USER_READ_CRUD = new UserReadModelCRUD(USER_READ_REPOSITORY);
-const GROUP_READ_DATA_STORAGE = new MongoDataStorage<GroupReadModelEntity>(GroupReadModel);
-const GROUP_READ_REPOSITORY = new GroupReadModelRepository(GROUP_READ_DATA_STORAGE);
-const GROUP_READ_CRUD = new GroupReadModelCRUD(GROUP_READ_REPOSITORY);
+const USER_DATA_STORAGE = new MongoDataStorage<Group>(UserReadModel);
+const GROUP_DATA_STORAGE = new MongoDataStorage<User>(GroupReadModel);
 
-export const todoEventHandler = async (data: any) => {
+export const todoEventHandler = async (data: NewTodoEvent) => {
     const eventType = data.eventType;
     const event = data.event;
 
     switch (eventType) {
-        case "todo_create": {
-            const findUser = await USER_READ_CRUD.readOne({ userId: event.userId });
+        case TodoEventTypes.Create: {
+            const findUser = await USER_DATA_STORAGE.findOneByKey({ userId: event.userId });
             console.log(findUser);
             if(findUser){
-                await USER_READ_CRUD.update({ id: findUser.id, todos: findUser.todos! + 1 })
+                await USER_DATA_STORAGE.update({ id: findUser.id, todos: findUser.todos + 1 })
             }
             if(findUser.tenantId){
-                const findGroup = await GROUP_READ_CRUD.readOne({ tenantId: findUser.tenantId });
+                const findGroup = await GROUP_DATA_STORAGE.findOneByKey({ tenantId: findUser.tenantId });
                 if(findGroup){
-                    await GROUP_READ_CRUD.update({ id: findGroup.id, todos: findGroup.todos! + 1 });
+                    await GROUP_DATA_STORAGE.update({ id: findGroup.id, todos: findGroup.todos + 1 });
                 }
             }
             break;
         }
-        case "todo_toggle": {
-            const findUser = await USER_READ_CRUD.readOne({ userId: event.userId });
+        case TodoEventTypes.Toggle: {
+            const findUser = await USER_DATA_STORAGE.findOneByKey({ userId: event.userId });
+            console.log(findUser);
             if(findUser){
                 if(event.completed === true){
-                    await USER_READ_CRUD.update({ id: findUser.id, completedTodos: findUser.completedTodos! + 1 })
+                    await USER_DATA_STORAGE.update({ id: findUser.id, completedTodos: findUser.completedTodos + 1 })
                 } else {
-                    await USER_READ_CRUD.update({ id: findUser.id, completedTodos: findUser.completedTodos! - 1 })
+                    await USER_DATA_STORAGE.update({ id: findUser.id, completedTodos: findUser.completedTodos - 1 })
                 }
             }
             if(findUser.tenantId){
-                const findGroup = await GROUP_READ_CRUD.readOne({ tenantId: findUser.tenantId });
+                const findGroup = await GROUP_DATA_STORAGE.findOneByKey({ tenantId: findUser.tenantId });
                 if(findGroup){
                     if(event.completed === true){
-                        await GROUP_READ_CRUD.update({ id: findGroup.id, completedTodos: findGroup.completedTodos! + 1 })
+                        await GROUP_DATA_STORAGE.update({ id: findGroup.id, completedTodos: findGroup.completedTodos + 1 })
                     } else {
-                        await GROUP_READ_CRUD.update({ id: findGroup.id, completedTodos: findGroup.completedTodos! - 1 })
+                        await GROUP_DATA_STORAGE.update({ id: findGroup.id, completedTodos: findGroup.completedTodos - 1 })
                     }
                 }
             }
             break;
         }
-        case "todo_delete": {
-            const findUser = await USER_READ_CRUD.readOne({ userId: event.userId });
+        case TodoEventTypes.Delete: {
+            const findUser = await USER_DATA_STORAGE.findOneByKey({ userId: event.userId });
             if(findUser){
                 if(event.completed === true){
-                    await USER_READ_CRUD.update({ id: findUser.id, todos: findUser.todos! - 1, completedTodos: findUser.completedTodos! - 1 })
+                    await USER_DATA_STORAGE.update({ id: findUser.id, todos: findUser.todos - 1,  completedTodos: findUser.completedTodos - 1 })
                 } else {
-                    await USER_READ_CRUD.update({ id: findUser.id, todos: findUser.todos! - 1 });
+                    await USER_DATA_STORAGE.update({ id: findUser.id, todos: findUser.todos - 1 });
                 }
             }
             if(findUser.tenantId){
-                const findGroup = await GROUP_READ_CRUD.readOne({ tenantId: findUser.tenantId });
+                const findGroup = await GROUP_DATA_STORAGE.findOneByKey({ tenantId: findUser.tenantId });
                 if(findGroup){
                     if(event.completed === true){
-                        await GROUP_READ_CRUD.update({ id: findGroup.id, todos: findGroup.todos! - 1, completedTodos: findGroup.completedTodos! - 1 });
+                        await GROUP_DATA_STORAGE.update({ id: findGroup.id, todos: findGroup.todos - 1, completedTodos: findGroup.completedTodos - 1 });
                     } else {
-                        await GROUP_READ_CRUD.update({ id: findGroup.id, todos: findGroup.todos! - 1 });
+                        await GROUP_DATA_STORAGE.update({ id: findGroup.id, todos: findGroup.todos - 1 });
                     }
                 }
             }
             break;
         }
-        case "todo_deleteAll": {
-            const findUser = await USER_READ_CRUD.readOne({ userId: event.userId });
+        case TodoEventTypes.DeleteAll: {
+            const findUser = await USER_DATA_STORAGE.findOneByKey({ userId: event.userId });
             if(findUser){
-                await USER_READ_CRUD.update({ id: findUser.id, todos: 0, completedTodos: 0 });
+                await USER_DATA_STORAGE.update({ id: findUser.id, todos: 0, completedTodos: 0 });
             }
             if(findUser.tenantId){
-                const findGroup = await GROUP_READ_CRUD.readOne({ tenantId: findUser.tenantId });
+                const findGroup = await GROUP_DATA_STORAGE.findOneByKey({ tenantId: findUser.tenantId });
                 if(findGroup){
-                    await GROUP_READ_CRUD.update({ id: findGroup.id, todos: findGroup.todos! - findUser.todos!, completedTodos: findGroup.completedTodos! - findUser.completedTodos! });
+                    await GROUP_DATA_STORAGE.update({ id: findGroup.id, todos: findGroup.todos - findUser.todos, completedTodos: findGroup.completedTodos - findUser.completedTodos });
                 }
             }
             break;

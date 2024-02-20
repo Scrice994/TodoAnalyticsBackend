@@ -3,8 +3,7 @@ import { GroupReadModelCRUD } from "../crud/groupReadModelCRUD";
 import { MongoDataStorage } from "../dataStorage/MongoDataStorage";
 import { GroupReadModel } from "../entities/mongo/groupReadModelSchema";
 import { GroupReadModelRepository } from "../repositories/groupReadModelRepository";
-import { GroupReadModelEntity } from "../entities/mongo/groupReadModelSchema";
-import { UserReadModelEntity } from "../entities/mongo/userReadModelSchema";
+import { GroupReadModelEntity, UserReadModelEntity } from "../entities/Entities";
 import { UserReadModelRepository } from "../repositories/userReadModelRepository";
 import { UserReadModelCRUD } from "../crud/userReadModelCRUD";
 
